@@ -3,16 +3,16 @@ import bcrypt from "bcryptjs"
 import User from "../models/user"
 import { createUserSchema } from "../schemas/userSchema"
 import { z } from "zod"
-export const getUsers = async (req: Request, res: Response, next: NextFunction) => {
+export const getUsers = async (req: Request, res: Response) => {
     try {
         const users = await User.find()
         res.status(200).json(users)
-    } catch (error) {
-        next(error)
+    } catch (error: any) {
+        res.status(500).json({ message: error.message || "Something went wrong" })
     }
 }
 
-export const createUser = async (req: Request, res: Response, next: NextFunction) => {
+export const createUser = async (req: Request, res: Response) => {
     try {
         const validatedData = createUserSchema.parse(req.body)
         const hashedPassword = await bcrypt.hash(validatedData.password, 10)
@@ -24,6 +24,6 @@ export const createUser = async (req: Request, res: Response, next: NextFunction
             return res.status(400).json({
                 message: error.issues.map(issue => issue.message)})
         }
-        next(error)
+        res.status(500).json({message: error.message || "Something went wrong"})
     }
 }

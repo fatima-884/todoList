@@ -2,7 +2,6 @@ import express from "express"
 import dotenv from "dotenv"
 import connectDB from "./config/db"
 import userRoutes from "./routes/userRoutes"
-import { errorHandler } from "./middlewares/errorHandler"
 
 dotenv.config()
 connectDB()
@@ -20,7 +19,5 @@ app.get("/", (req, res) => {
 app.use((req, res) => {
     res.status(404).json({ success: false, message: "Route not found" })
 })
-
-app.use(errorHandler)
 
 export default app
