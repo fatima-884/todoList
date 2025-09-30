@@ -14,12 +14,13 @@
     "typescript": "^5.9.2"
   },
   "dependencies": {
+    "bcrypt": "^6.0.0",
     "dotenv": "^17.2.2",
     "express": "^5.1.0",
     "mongoose": "^8.18.3"
   },
   "scripts": {
     "dev": "bun run src/server.ts",
-    "start": "nodemon --watch \"src/**/*.ts\" --exec bun run src/server.ts" 
+    "start": "nodemon --watch \"src/**/*.ts\" --exec bun run src/server.ts"
   }
 }
