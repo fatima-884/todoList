@@ -1,11 +1,13 @@
 import express from "express"
-import { getUsers, createUser, getUserById, updateUser, deleteUser } from "../controllers/UserController"
+import { getUsers, getUserById, updateUser, deleteUser } from "../controllers/UserController"
+import { authMiddleware } from "../middlewares/authmiddleware"
 
 const router = express.Router()
 
 router.get("/", getUsers)
+
+router.use(authMiddleware)
 router.get("/:id", getUserById)
-router.post("/", createUser)
 router.put("/:id", updateUser)
 router.delete("/:id", deleteUser)
 
