@@ -1,23 +1,27 @@
-import type { Request, Response} from "express"
+import type { Response} from "express"
 import Todo from "../models/todo"
 import { createTodoSchema, todoIdSchema, updateTodoSchema } from "../schemas/todoSchema"
 import { z } from "zod"
+import type { AuthRequest } from "../middlewares/authmiddleware"
 
-export const getTodos = async (req: Request, res: Response) => {
+export const getTodos = async (req: AuthRequest, res: Response) => {
     try {
-        const todos = await Todo.find()
+        const todos = await Todo.find({ user: req.user._id })
         res.status(200).json(todos)
     } catch (error: any) {
         res.status(500).json({ message: error.message || "Something went wrong" })
     }
 }
 
-export const createTodo = async (req: Request, res: Response) => {
+export const createTodo = async (req: AuthRequest, res: Response) => {
     try {
         const validatedData = createTodoSchema.parse(req.body)
-        const todo = new Todo(validatedData)
+        const todo = new Todo({ ...validatedData, user: req.user._id })
         await todo.save()
-        res.status(201).json(todo)
+        res.status(201).json({
+            message: "Todo created successfully",
+            todo
+        })
     } catch (error: any) {
         if (error instanceof z.ZodError) {
             return res.status(400).json({
@@ -27,10 +31,10 @@ export const createTodo = async (req: Request, res: Response) => {
     }
 }
 
-export const updateTodo = async (req: Request, res: Response) => {
+export const updateTodo = async (req: AuthRequest, res: Response) => {
     try {
         const id = todoIdSchema.parse(req.params.id)
-        const todo = await Todo.findById(id)
+        const todo = await Todo.findOne({ _id: id, user: req.user._id })
         if (!todo) {
             return res.status(404).json({message: "Todo not found"})
         }
@@ -48,10 +52,10 @@ export const updateTodo = async (req: Request, res: Response) => {
     }
 }
 
-export const deleteTodo = async (req: Request, res: Response) => {
+export const deleteTodo = async (req: AuthRequest, res: Response) => {
     try {
         const id = todoIdSchema.parse(req.params.id)
-        const todo = await Todo.findByIdAndDelete(id)
+        const todo = await Todo.findOneAndDelete({ _id: id, user: req.user._id })
         if (!todo) {
             return res.status(404).json({message: "Todo not found"})
         }
